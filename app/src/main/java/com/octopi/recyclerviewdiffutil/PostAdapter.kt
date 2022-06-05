@@ -75,7 +75,7 @@ class PostAdapter(
         override fun areContentsTheSame(
             oldItem: PostResponse.PostResponseItem,
             newItem: PostResponse.PostResponseItem): Boolean {
-            return oldItem.isSelected == newItem.isSelected && oldItem == newItem
+            return oldItem == newItem
         }
     }
 

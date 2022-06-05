@@ -2,19 +2,13 @@ package com.octopi.recyclerviewdiffutil
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
-import android.util.Log
 import android.view.View
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
 import com.octopi.recyclerviewdiffutil.model.PostResponse
-import com.octopi.recyclerviewdiffutil.network.apiHitter
 import com.orhanobut.logger.Logger
 import kotlinx.android.synthetic.main.activity_main.*
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import timber.log.Timber
 import kotlin.random.Random
 
@@ -23,7 +17,7 @@ class MainActivity : AppCompatActivity(), PostAdapter.ItemClickListener {
     val TAG = "main_db"
     
     private lateinit var viewModel: MainViewModel
-    private lateinit var adapter: PostAdapter
+    private lateinit var postAdapter: PostAdapter
     private val currentList: ArrayList<PostResponse.PostResponseItem> = ArrayList()
     
     override fun onCreate(savedInstanceState: Bundle?) { 
@@ -44,10 +38,11 @@ class MainActivity : AppCompatActivity(), PostAdapter.ItemClickListener {
 
     private fun initValue() {
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+        postAdapter = PostAdapter(this)
         post_recyclerview.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(this@MainActivity)
-            adapter = PostAdapter(this@MainActivity)
+            adapter = postAdapter
         }
     }
 
@@ -59,7 +54,7 @@ class MainActivity : AppCompatActivity(), PostAdapter.ItemClickListener {
         viewModel.postObserver.observe(this) {
             Logger.json(Gson().toJson(it))
             currentList.addAll(it)
-            adapter.submitList(it)
+            postAdapter.submitList(it)
             progress_bar.visibility = View.GONE
 
             //addNewList()
@@ -68,19 +63,19 @@ class MainActivity : AppCompatActivity(), PostAdapter.ItemClickListener {
 
     private fun addNewList() {
         currentList.add(PostResponse.PostResponseItem("Android Developer",getId(),"Asad",getId()))
-        adapter.submitList(currentList)
+        postAdapter.submitList(currentList)
     }
 
     override fun itemClicked(position: Int,item: PostResponse.PostResponseItem) {
         Timber.i("status: ${item.isSelected}")
         item.isSelected = !item.isSelected
         currentList[position] = item
-        adapter.submitList(currentList)
+        postAdapter.submitList(currentList)
     }
 
     override fun deleteItem(position: Int) {
         currentList.removeAt(position)
-        adapter.submitList(currentList)
+        postAdapter.submitList(currentList)
     }
 
     private fun getId(): Int {
